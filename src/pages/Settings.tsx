@@ -1,13 +1,14 @@
 import { useRef, useState } from 'react'
 import { Button, Card, Chip, Modal, PageHeader, SectionTitle, Toggle } from '../components/ui'
 import { useApp } from '../lib/appContext'
+import { BODY_GOAL_LABELS, SOURCES } from '../lib/advice'
 import { makeBackup, parseBackup } from '../lib/backup'
 import { db, getSettings, wipeAll } from '../lib/db'
 import { todayStr } from '../lib/dates'
-import { EQUIPMENT_LABELS, GOAL_LABELS } from '../lib/program'
 import { SEVERITY_LABELS, getLimits } from '../lib/safety'
-import type { HeartProfile, Severity } from '../lib/types'
+import type { BodyGoal, HeartProfile, Level, Severity } from '../lib/types'
 import { DISCLAIMER_POINTS } from './Disclaimer'
+import { LEVEL_LABELS } from './Setup'
 
 const SEVERITY_INFO: Record<Severity, string> = {
   hafif: 'RPE 6–7, tekrar 8–15. Squat, trap bar deadlift, ayakta omuz presi gibi compound hareketler orta ağırlıkta yapılabilir.',
@@ -26,11 +27,18 @@ export function SettingsPage() {
   const [wipeText, setWipeText] = useState('')
   const [importData, setImportData] = useState<ReturnType<typeof parseBackup> | null>(null)
   const [aboutOpen, setAboutOpen] = useState(false)
+  const [sourcesOpen, setSourcesOpen] = useState(false)
   const [hrText, setHrText] = useState(p.maxHr ? String(p.maxHr) : '')
 
   const doExport = async () => {
-    const [s, workouts, bodyLogs] = await Promise.all([getSettings(), db.workouts.toArray(), db.bodyLogs.toArray()])
-    const blob = new Blob([JSON.stringify(makeBackup(s, workouts, bodyLogs), null, 2)], { type: 'application/json' })
+    const [s, workouts, bodyLogs, exerciseLogs, weekNotes] = await Promise.all([
+      getSettings(),
+      db.workouts.toArray(),
+      db.bodyLogs.toArray(),
+      db.exerciseLogs.toArray(),
+      db.weekNotes.toArray(),
+    ])
+    const blob = new Blob([JSON.stringify(makeBackup(s, workouts, bodyLogs, exerciseLogs, weekNotes), null, 2)], { type: 'application/json' })
     const name = `fit-yedek-${todayStr()}.json`
     const file = new File([blob], name, { type: 'application/json' })
     // Telefonda paylaş menüsü (Dosyalara kaydet, Drive, e-posta…) varsa onu kullan
@@ -69,11 +77,15 @@ export function SettingsPage() {
 
   const doImport = async () => {
     if (!importData) return
-    await db.transaction('rw', db.settings, db.workouts, db.bodyLogs, async () => {
+    await db.transaction('rw', [db.settings, db.workouts, db.bodyLogs, db.exerciseLogs, db.weekNotes], async () => {
       await db.workouts.clear()
       await db.bodyLogs.clear()
+      await db.exerciseLogs.clear()
+      await db.weekNotes.clear()
       await db.workouts.bulkAdd(importData.workouts.map(({ id: _id, ...w }) => w))
       await db.bodyLogs.bulkAdd(importData.bodyLogs.map(({ id: _id, ...b }) => b))
+      await db.exerciseLogs.bulkAdd(importData.exerciseLogs.map(({ id: _id, ...l }) => l))
+      await db.weekNotes.bulkPut(importData.weekNotes)
       if (importData.settings) await db.settings.put({ ...importData.settings, disclaimerAccepted: true, id: 'main' })
     })
     setImportData(null)
@@ -148,18 +160,32 @@ export function SettingsPage() {
         )}
       </Card>
 
-      <SectionTitle>📅 Program</SectionTitle>
-      <Card>
-        {settings.setup && (
-          <p className="mb-3 text-sm text-muted">
-            {settings.setup.daysPerWeek} gün · {settings.setup.sessionMin} dk · {EQUIPMENT_LABELS[settings.setup.equipment]} ·{' '}
-            {GOAL_LABELS[settings.setup.goal]} · {settings.setup.bodyWeight} kg
-          </p>
-        )}
+      <SectionTitle>🎯 Hedef ve deneyim</SectionTitle>
+      <Card className="space-y-3">
+        <div>
+          <p className="mb-2 text-sm font-medium">Vücut ağırlığı hedefi</p>
+          <div className="grid gap-2">
+            {(Object.keys(BODY_GOAL_LABELS) as BodyGoal[]).map((g) => (
+              <Chip key={g} active={settings.bodyGoal === g} onClick={() => update({ bodyGoal: g })}>
+                {BODY_GOAL_LABELS[g]}
+              </Chip>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className="mb-2 text-sm font-medium">Antrenman deneyimi</p>
+          <div className="grid gap-2">
+            {(Object.keys(LEVEL_LABELS) as Level[]).map((l) => (
+              <Chip key={l} active={settings.level === l} onClick={() => update({ level: l })}>
+                {LEVEL_LABELS[l]}
+              </Chip>
+            ))}
+          </div>
+          <p className="mt-2 text-xs text-muted">Haftalık beklenen kilo artışı buna göre hesaplanır.</p>
+        </div>
         <Button variant="secondary" className="w-full" onClick={openSetup}>
-          Programı yeniden oluştur
+          Planı baştan kur
         </Button>
-        <p className="mt-2 text-xs text-muted">Geçmiş kayıtların silinmez; sadece haftalık plan ve hareket değişiklikleri sıfırlanır.</p>
       </Card>
 
       <SectionTitle>🎨 Görünüm</SectionTitle>
@@ -192,6 +218,9 @@ export function SettingsPage() {
 
       <SectionTitle>ℹ️ Hakkında</SectionTitle>
       <Card>
+        <Button variant="ghost" className="w-full" onClick={() => setSourcesOpen(true)}>
+          Tavsiyelerin kaynakları
+        </Button>
         <Button variant="ghost" className="w-full" onClick={() => setAboutOpen(true)}>
           Sağlık uyarısını göster
         </Button>
@@ -201,7 +230,7 @@ export function SettingsPage() {
         {importData && (
           <>
             <p className="mb-2 text-sm">
-              {importData.workouts.length} antrenman ve {importData.bodyLogs.length} vücut kaydı bulundu
+              {importData.exerciseLogs.length} hareket kaydı, {importData.bodyLogs.length} vücut kaydı ve {importData.workouts.length} eski antrenman bulundu
               {importData.exportedAt ? ` (${new Date(importData.exportedAt).toLocaleString('tr-TR')})` : ''}.
             </p>
             <p className="mb-4 text-sm text-danger">Bu cihazdaki mevcut kayıtların yerine geçecek.</p>
@@ -224,7 +253,7 @@ export function SettingsPage() {
         title="Tüm veriler silinsin mi?"
       >
         <p className="mb-2 text-sm">
-          Antrenman geçmişi, vücut kayıtları, program ve ayarlar <b>kalıcı olarak</b> silinecek. Önce yedek almanı öneririz.
+          Hareket kayıtları, vücut kayıtları, plan ve ayarlar <b>kalıcı olarak</b> silinecek. Önce yedek almanı öneririz.
         </p>
         <p className="mb-2 text-sm">Onaylamak için <b>SİL</b> yaz:</p>
         <input
@@ -250,6 +279,25 @@ export function SettingsPage() {
             Vazgeç
           </Button>
         </div>
+      </Modal>
+
+      <Modal open={sourcesOpen} onClose={() => setSourcesOpen(false)} title="Kaynaklar">
+        <p className="mb-3 text-sm text-muted">
+          Tavsiyeler bu kaynaklardaki ilkelerden türetilmiş, internet gerektirmeyen kurallardır. Haftalık beklenen aralıklar yaklaşık değerlerdir ve kalp profiline göre düşürülür.
+        </p>
+        <ul className="space-y-3 text-sm">
+          {SOURCES.map((src) => (
+            <li key={src.id} className="rounded-xl bg-card2 p-3">
+              <p className="font-semibold">{src.title}</p>
+              <p className="mt-1 text-muted">{src.detail}</p>
+              {src.url && (
+                <a className="mt-1 inline-block text-accent underline" href={src.url} target="_blank" rel="noreferrer">
+                  Kaynağa git
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
       </Modal>
 
       <Modal open={aboutOpen} onClose={() => setAboutOpen(false)} title="Sağlık uyarısı">

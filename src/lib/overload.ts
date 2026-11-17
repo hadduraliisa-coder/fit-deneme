@@ -1,5 +1,8 @@
 import type { Exercise, Limits, SetLog } from './types'
 
+/** İlerleme hesabı için gereken hareket alanları (kütüphane hareketi veya kullanıcının plan hareketi) */
+export type ProgressionTarget = Pick<Exercise, 'bodyPart'> & Partial<Pick<Exercise, 'bodyweight' | 'startFactor' | 'minIncrement'>>
+
 export type OverloadAction = 'start' | 'increase' | 'keep' | 'decrease'
 
 export interface Suggestion {
@@ -15,7 +18,7 @@ export function roundTo(value: number, step: number): number {
 }
 
 /** Ağırlık artış miktarı: üst vücut +1–2,5 kg, alt vücut +2,5–5 kg */
-export function incrementFor(ex: Exercise, currentWeight: number): number {
+export function incrementFor(ex: ProgressionTarget, currentWeight: number): number {
   const lower = ex.bodyPart === 'lower'
   if (lower) {
     const inc = currentWeight >= 40 ? 5 : 2.5
@@ -31,7 +34,7 @@ export function increaseRpeThreshold(limits: Limits): number {
 }
 
 /** İlk seans için muhafazakâr başlangıç ağırlığı */
-export function startingWeight(ex: Exercise, bodyWeight: number): number {
+export function startingWeight(ex: ProgressionTarget, bodyWeight: number): number {
   if (ex.bodyweight || !ex.startFactor) return 0
   const step = ex.minIncrement ?? 2.5
   return Math.max(step, roundTo(bodyWeight * ex.startFactor, step))
@@ -45,7 +48,7 @@ export function startingWeight(ex: Exercise, bodyWeight: number): number {
  *  - `reduced` (semptom sonrası) → önerinin %90'ı.
  */
 export function suggestNext(
-  ex: Exercise,
+  ex: ProgressionTarget,
   lastSets: SetLog[] | null | undefined,
   repMax: number,
   limits: Limits,
@@ -119,7 +122,7 @@ export function suggestNext(
     s = {
       ...s,
       weight: Math.max(step, roundTo(s.weight * 0.9, step)),
-      reason: s.reason + ' Semptom bildirdiğin için bugün ~%10 hafifletildi.',
+      reason: s.reason + ' Semptom bildirdiğin için ~%10 hafifletildi.',
     }
   }
   return s

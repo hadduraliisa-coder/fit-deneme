@@ -194,4 +194,63 @@ export interface AppSettings {
   nextDayIndex: number
   /** Semptom bildirildiyse bir sonraki antrenman azaltılır */
   symptomFlag: { date: string; symptoms: Symptom[] } | null
+  /** v2: kullanıcının kendi yazdığı plan */
+  plan: Plan | null
+  level: Level
+  bodyGoal: BodyGoal
+  bodyWeight: number
+}
+
+// ───────────── Haftalık takip (v2) ─────────────
+
+export type Level = 'baslangic' | 'orta' | 'ileri'
+export type BodyGoal = 'kas' | 'kilo' | 'koru'
+
+export interface PlanExercise {
+  id: string
+  name: string
+  /** Kütüphanedeki hareketle eşleşiyorsa id (güvenlik notları için) */
+  libraryId?: string
+  bodyPart: BodyPart
+  sets: number
+  repMin: number
+  repMax: number
+  /** Ağırlıksız (vücut ağırlığı / lastik / kardiyo) */
+  bodyweight?: boolean
+  note?: string
+}
+
+export interface PlanDay {
+  id: string
+  name: string
+  exercises: PlanExercise[]
+}
+
+export interface Plan {
+  days: PlanDay[]
+}
+
+export interface LogSet {
+  weight: number
+  reps: number
+}
+
+/** Bir hareketin bir haftadaki kaydı (hafta başına tek kayıt) */
+export interface ExerciseLog {
+  id?: number
+  planExerciseId: string
+  /** Haftanın pazartesi günü YYYY-MM-DD */
+  week: string
+  date: string
+  sets: LogSet[]
+  /** En zor setin RPE'si */
+  rpe: number | null
+  note?: string
+}
+
+export interface WeekNote {
+  week: string
+  feeling?: number
+  symptoms: Symptom[]
+  note?: string
 }

@@ -1,11 +1,13 @@
 import Dexie, { type Table } from 'dexie'
 import { DEFAULT_PROFILE } from './safety'
-import type { AppSettings, BodyLog, Workout } from './types'
+import type { AppSettings, BodyLog, ExerciseLog, WeekNote, Workout } from './types'
 
 export class FitDB extends Dexie {
   settings!: Table<AppSettings, string>
   workouts!: Table<Workout, number>
   bodyLogs!: Table<BodyLog, number>
+  exerciseLogs!: Table<ExerciseLog, number>
+  weekNotes!: Table<WeekNote, string>
 
   constructor() {
     super('fit-deneme')
@@ -13,6 +15,11 @@ export class FitDB extends Dexie {
       settings: 'id',
       workouts: '++id, date, finishedAt, dayIndex',
       bodyLogs: '++id, date',
+    })
+    // v2: haftalık takip
+    this.version(2).stores({
+      exerciseLogs: '++id, &[planExerciseId+week], week, planExerciseId',
+      weekNotes: 'week',
     })
   }
 }
@@ -30,6 +37,10 @@ export function defaultSettings(): AppSettings {
     swaps: {},
     nextDayIndex: 0,
     symptomFlag: null,
+    plan: null,
+    level: 'baslangic',
+    bodyGoal: 'kas',
+    bodyWeight: 75,
   }
 }
 
@@ -47,9 +58,11 @@ export async function updateSettings(patch: Partial<AppSettings>): Promise<void>
 }
 
 export async function wipeAll(): Promise<void> {
-  await db.transaction('rw', db.settings, db.workouts, db.bodyLogs, async () => {
+  await db.transaction('rw', [db.settings, db.workouts, db.bodyLogs, db.exerciseLogs, db.weekNotes], async () => {
     await db.settings.clear()
     await db.workouts.clear()
     await db.bodyLogs.clear()
+    await db.exerciseLogs.clear()
+    await db.weekNotes.clear()
   })
 }

@@ -1,21 +1,19 @@
 import { createContext, useContext } from 'react'
-import type { RestState } from '../components/RestTimer'
-import type { AppSettings, BodyLog, Limits, Workout } from './types'
+import type { AppSettings, BodyLog, ExerciseLog, Limits, WeekNote } from './types'
 
-export type Tab = 'today' | 'program' | 'exercises' | 'stats' | 'settings'
+export type Tab = 'week' | 'plan' | 'progress' | 'body' | 'settings'
 
 export interface AppCtx {
   settings: AppSettings
-  /** Güncel profil limitleri (semptom bayrağı dahil değil) */
+  /** Güncel profil limitleri */
   limits: Limits
-  /** Bir sonraki antrenmana uygulanacak limitler (semptom varsa azaltılmış) */
+  /** Bu haftanın hedeflerine uygulanacak limitler (semptom varsa bir kademe azaltılmış) */
   sessionLimits: Limits
-  workouts: Workout[]
+  exerciseLogs: ExerciseLog[]
+  weekNotes: WeekNote[]
   bodyLogs: BodyLog[]
   update: (patch: Partial<AppSettings>) => Promise<void>
   setTab: (t: Tab) => void
-  openWorkout: () => void
-  startRest: (r: RestState | null) => void
   openSetup: () => void
 }
 

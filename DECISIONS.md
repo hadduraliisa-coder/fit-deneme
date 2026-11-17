@@ -1,5 +1,30 @@
 # Kararlar (DECISIONS)
 
+## v2 – Haftalık takip uygulamasına geçiş
+
+A1. **Uygulama, otomatik program yerine kullanıcının kendi yazdığı plana dayanıyor.** "Bugün / antrenman seansı" akışı kaldırıldı. Yerine "Bu Hafta" ekranı geldi: her hareket için **haftada bir kayıt** tutulur (kilo, setlerdeki tekrarlar, en zor setin RPE'si). Aynı hareket hafta içinde iki kez yapılırsa kayıt güncellenir.
+A2. **Tavsiyeler "internetten" değil, uygulamaya gömülü kurallardan geliyor.** Kullanıcı bu seçeneği seçti. Uygulama sunucusuz çalıştığı için canlı bir yapay zekâ servisi API anahtarını herkese açık sayfaya koymayı gerektirirdi. Kurallar ACSM 2009, AHA 2007, Iraki 2019 ve Helms 2014 kaynaklarına dayanıyor ve uygulama içinde listeleniyor (`src/lib/advice.ts`).
+A3. **Haftalık beklenen yük artışı (% / hafta).** Bu değerler ACSM'nin "%2–10 artış, yeni başlayanda hızlı, deneyimlide yavaş" ilkesinden türetilmiş yaklaşık değerlerdir:
+   | Deneyim | Üst vücut | Alt vücut |
+   |---|---|---|
+   | Yeni başlayan | %1,5–3 | %2,5–5 |
+   | Orta | %0,5–1,5 | %1–2 |
+   | Deneyimli | %0,25–0,5 | %0,25–1 |
+
+   Kalp profiline göre çarpan uygulanır: hafif ×1, orta ×0,5, ciddi ×0,25. Mutlak üst sınır haftada %5'tir. Bunun üstündeki artış "çok hızlı" sayılır ve yavaşlama önerilir.
+A4. **Değerlendirme yöntemi:** Son 8 hafta içindeki ilk ve son kayıt arasındaki bileşik haftalık artış hesaplanır. En az 2 farklı haftada kayıt gerekir. "Şu an olması beklenen kilo" ilk kayıttan bu oranlarla ileri hesaplanır.
+A5. **Vücut ağırlığı hedefleri (haftalık, vücut ağırlığına oranla):** Kas kazanmak için +%0,25–0,5 (Iraki 2019), kilo vermek için −%0,5–1 (Helms 2014), korumak için ±%0,25. Hesaplama günlük tartılar yerine **haftalık ortalamalar** üzerinden, son 4 haftaya bakılarak yapılır.
+A6. **Kalp için ani kilo artışı uyarısı:** Bir günde ≥1 kg veya 7 gün içinde ≥2 kg artış olursa sıvı birikimi (ödem) uyarısı gösterilir. Bu, AHA'nın kalp yetmezliğindeki kilo takibi önerisine dayanır.
+A7. **Haftalık hedef** önceki programdaki progressive overload kuralının aynısıdır: RPE ≤ 6 ile üst tekrara ulaşılırsa artır, RPE 7'de aynı kal, limit aşılırsa azalt. Hedef, bu haftadan önceki son kayda göre hesaplanır. Yeni bir haftanın formu bu hedefle önceden doldurulur.
+A8. **Kullanıcının kendi eklediği hareketler** kütüphanede yoksa isimden anahtar kelime taraması yapılır (squat, deadlift, overhead, amuda vb.) ve genel bir uyarı gösterilir. Tekrar alt sınırı 8'in altına inerse de uyarı çıkar. Plan yine de kaydedilir; karar kullanıcıya bırakılır.
+A9. **Semptom bayrağı** yalnızca **içinde bulunulan haftanın** notuyla belirlenir. Semptomsuz bir not kaydedilince bayrak kalkar. Geçmiş haftaların notları bayrağı değiştirmez.
+A10. Eski sürümün verileri (antrenman seansları) veritabanında ve yedek dosyasında korunur, ancak arayüzde gösterilmez. Yedek formatı v2'dir; v1 yedekleri de içe aktarılabilir.
+A11. Kaynak bağlantıları, makale başlığıyla yapılan PubMed aramasına yönlendirir. Geliştirme ortamından PubMed'e erişilemediği için doğrudan makale numaraları doğrulanamadı; kırık bağlantı riskini önlemek için bu yol seçildi.
+
+---
+
+## v1 kararları (hâlâ geçerli olanlar: kalp güvenliği, ağırlık önerileri, teknik)
+
 Bu dosya, geliştirme sırasında belirsiz kalan konularda verilen kararları ve gerekçelerini listeler. İstediğin kararı değiştirebilirsin; ilgili dosya her maddede belirtilmiştir.
 
 ## Kalp güvenliği

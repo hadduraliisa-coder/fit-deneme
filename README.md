@@ -1,22 +1,21 @@
 # fit-deneme – Kalp Dostu Antrenman Takibi
 
-Hafif triküspit yetmezliği (tricuspid regurgitation) göz önünde bulundurularak hazırlanmış, **mobil öncelikli**, Türkçe bir fitness takip uygulaması. Tüm veriler telefonunda (IndexedDB) saklanır. Sunucu ve hesap yoktur, internet olmadan da çalışır (PWA).
+Planını kendin yazdığın, her hareketin kilosunu ve vücut ağırlığını **haftalık** takip ettiğin, **mobil öncelikli** Türkçe bir uygulama. Hafif triküspit yetmezliği (tricuspid regurgitation) göz önünde bulundurularak hazırlandı. Tüm veriler telefonunda (IndexedDB) saklanır. Sunucu ve hesap yoktur, internet olmadan da çalışır (PWA).
 
 > ⚠️ **Bu program kardiyolog önerisinin yerine geçmez.** Göğüs ağrısı, baş dönmesi, çarpıntı, olağandışı nefes darlığı veya bacak/ayak bileği şişmesi olursa antrenmanı bırak ve doktoruna danış.
 
 **Uygulama adresi:** https://hadduraliisa-coder.github.io/fit-deneme/
-(GitHub Pages açıldıktan ve ilk deploy bittikten sonra çalışır, aşağıya bak.)
+(## Özellikler
 
-## Özellikler
+- **Planım:** Günlerini (ör. "Pazartesi – Üst") ve hareketlerini kendin yazarsın. Hareketleri 44 hareketlik kütüphaneden seçebilir ya da kendi hareketini ekleyebilirsin. Her hareket için set sayısı, tekrar aralığı ve not girilir; sıralama değiştirilebilir. İstersen kalp profiline uygun hazır bir şablonla başlayıp onu düzenleyebilirsin.
+- **Bu Hafta:** Her hareket için kilo, setlerdeki tekrar sayıları ve en zor setin RPE'si girilir. Önceki haftanın kaydı ve bu haftanın hedefi (artır, aynı kal ya da azalt) gerekçesiyle birlikte gösterilir. Geçmiş haftalara geri dönüp kayıt girilebilir. Hafta sonunda nasıl hissettiğini ve varsa semptomları not edersin.
+- **İlerleme:** Her hareket için haftalık kilo değişimi (kg ve %) ve "olması gereken" kilo aralığı gösterilir. Durum beklentinin gerisinde, aralıkta, hızlı ya da çok hızlı olarak etiketlenir. Grafikte senin kilon ile beklenen alt ve üst sınır çizgileri birlikte görünür. Haftalık toplam hacim ve haftalık seri de bu ekranda.
+- **Vücut:** Tartı, bel çevresi, dinlenik nabız ve tansiyon kaydedilir. Haftalık ortalama kilo ve haftalık değişim gösterilir. Hedefine göre (kas kazanmak, kilo vermek, korumak) haftada kaç kg değişmen gerektiği söylenir. Ani kilo artışında sıvı birikimi (ödem) uyarısı çıkar.
+- **Tavsiyeler:** İnternet gerektirmez; ACSM, AHA ve spor beslenmesi literatürüne dayalı kurallardan üretilir. Kaynak listesi **Ayarlar → Tavsiyelerin kaynakları** bölümündedir. Tavsiyeler kalp profilindeki RPE ve hareket limitlerini asla aşmaz.
+- **Kalp güvenliği:** Hafif, orta ve ciddi profil seçilebilir. Ekranda her zaman DUR uyarısı görünür. Riskli hareketlerde uyarı çıkar. Semptom bildirirsen hedefler bir kademe hafifler.
+- **Ayarlar:** Hedef, deneyim seviyesi, kalp profili, koyu/açık tema, JSON yedek alma ve geri yükleme, tüm verileri silme.
 
-- **Kalp profili:** hafif / orta / ciddi. Seçime göre RPE limiti, tekrar aralığı, dinlenme süresi, izometrik süre ve izin verilen hareketler otomatik değişir. Opsiyonel nabız limiti ve "beta bloker kullanıyorum" seçeneği var. HIIT varsayılan olarak kapalıdır.
-- **Hareket kütüphanesi:** 11 bölgede 44 hareket bulunur. Her bölgede 1 "en iyi seçim" ve 3 alternatif var. Salon, ev ve dambıl varyasyonları mevcut. Her kartta adım adım anlatım, sık yapılan hatalar, nefes talimatı ve kalp güvenliği notu yer alır. Veriler `src/data/exercises.ts` dosyasındadır, istediğin gibi düzenleyebilirsin.
-- **Program oluşturucu:** Haftada 2–5 gün, 30–75 dk seans, ekipman ve hedef seçilir. 2–3 gün için Tüm Vücut, 4 gün için Üst/Alt, 5 gün için Üst/Alt + Kardiyo/Core programı oluşur. Her antrenman ısınma ile başlar, soğuma ile biter. Hareket değiştirme (swap) özelliği var. Bir günü kaçırırsan program kaymaz.
-- **Antrenman takibi:** Büyük +/− butonlarıyla ağırlık, tekrar ve RPE girilir. Son seansın değerleri otomatik dolar. Dinlenme sayacı titreşim ve sesle uyarır. Ekranda her zaman bir **DUR** uyarısı görünür.
-- **Progressive overload:** Tüm setlerde üst tekrar sınırına RPE ≤ 6 ile ulaşırsan artış önerilir (üst vücut +1–2,5 kg, alt vücut +2,5–5 kg). RPE 7'de ağırlık aynı kalır. Limit aşılırsa ağırlığı düşürmen önerilir.
-- **Sağlık takibi:** Vücut ağırlığı, bel çevresi, dinlenik nabız ve tansiyon kaydedilebilir. Antrenman sonrası "nasıl hissettim" notu ve semptom işaretleme yapılır. Semptom girersen bir sonraki antrenman bir kademe hafifletilir.
-- **İstatistikler:** Hareket bazında ilerleme grafiği, haftalık hacim, kas grubu başına set sayısı, vücut ağırlığı grafiği, haftalık seri, takvim, geçmiş ve kişisel rekorlar (1RM hesaplanmaz).
-- **Ayarlar:** Kalp profili, programı yeniden oluşturma, koyu/açık tema, JSON yedek alma ve geri yükleme, tüm verileri silme.
+şturma, koyu/açık tema, JSON yedek alma ve geri yükleme, tüm verileri silme.
 
 ## GitHub Pages'i açma (bir kerelik)
 
