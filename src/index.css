@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-bg: var(--app-bg);
+  --color-card: var(--app-card);
+  --color-card2: var(--app-card2);
+  --color-fg: var(--app-fg);
+  --color-muted: var(--app-muted);
+  --color-line: var(--app-line);
+  --color-accent: var(--app-accent);
+  --color-accent-fg: var(--app-accent-fg);
+  --color-warn: var(--app-warn);
+  --color-danger: var(--app-danger);
+  --color-ok: var(--app-ok);
+}
+
+:root {
+  --app-bg: #f4f6f8;
+  --app-card: #ffffff;
+  --app-card2: #eef1f4;
+  --app-fg: #0f172a;
+  --app-muted: #5b6676;
+  --app-line: #d8dee6;
+  --app-accent: #0f9d76;
+  --app-accent-fg: #ffffff;
+  --app-warn: #b45309;
+  --app-danger: #dc2626;
+  --app-ok: #15803d;
+  color-scheme: light;
+}
+
+.dark {
+  --app-bg: #0b0f14;
+  --app-card: #151b23;
+  --app-card2: #1e2631;
+  --app-fg: #e8edf3;
+  --app-muted: #93a0b1;
+  --app-line: #2a3441;
+  --app-accent: #34d399;
+  --app-accent-fg: #052e22;
+  --app-warn: #fbbf24;
+  --app-danger: #f87171;
+  --app-ok: #4ade80;
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--app-fg);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
